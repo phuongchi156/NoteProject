@@ -1,0 +1,22 @@
+# Build
+bin/
+obj/
+
+# VS
+.vs/
+*.user
+*.suo
+
+# Logs
+logs/
+*.log
+
+# Cache
+*.db
+*.cache
+*.vscode
+*.vsix
+*.vsvsdc
+
+# Publish
+appsettings*.Development.json
