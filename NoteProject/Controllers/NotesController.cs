@@ -8,6 +8,7 @@ namespace NoteProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class NotesController : ControllerBase
     {
         private readonly NoteDbContext _context;
@@ -19,7 +20,21 @@ namespace NoteProject.Controllers
             NoteEntity = noteEntity;
         }
 
-        [HttpGet]
+        [HttpGet("ping")]
+        public IActionResult Ping()
+        {
+            return Ok("PING " + DateTime.Now);
+        }
+
+
+        [HttpGet("secure-test")]
+        [Authorize]
+        public IActionResult SecureTest()
+        {
+            return Ok("JWT OK");
+        }
+
+        [HttpGet("Get all note")]
         public async Task<ActionResult<IEnumerable<Notes>>> GetNotes()
         {
             return await _context.Notes.ToListAsync();
