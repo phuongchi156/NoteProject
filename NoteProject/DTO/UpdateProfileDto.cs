@@ -6,5 +6,5 @@ public class UpdateProfileDto
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
     public DateTime UpdateTime { get; set; } = DateTime.UtcNow;
-    public string? AvatarUrl { get; set; }
+    public IFormFile? AvatarUrl { get; set; }
 }
