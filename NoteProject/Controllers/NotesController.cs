@@ -21,20 +21,6 @@ namespace NoteProject.Controllers
             NoteEntity = noteEntity;
         }
 
-        [HttpGet("ping")]
-        public IActionResult Ping()
-        {
-            return Ok("PING " + DateTime.Now);
-        }
-
-
-        [HttpGet("secure-test")]
-        [Authorize]
-        public IActionResult SecureTest()
-        {
-            return Ok("JWT OK");
-        }
-
         [HttpGet("Get all note")]
         public async Task<ActionResult<IEnumerable<Notes>>> GetNotes()
         {

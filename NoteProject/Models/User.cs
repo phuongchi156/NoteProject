@@ -9,4 +9,9 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
     public string? AvatarUrl { get; set; }
+
+    internal static object FindFirst(string v)
+    {
+        throw new NotImplementedException();
     }
+}
