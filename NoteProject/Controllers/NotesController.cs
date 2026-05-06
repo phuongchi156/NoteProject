@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NoteProject.DTO.NoteDTO;
 using NoteProject.Entities;
 using NoteProject.Models;
 using System;
@@ -13,18 +14,20 @@ namespace NoteProject.Controllers
     public class NotesController : ControllerBase
     {
         private readonly NoteDbContext _context;
-        public NoteEntity NoteEntity { get; set; }
-
-        public NotesController(NoteDbContext context, NoteEntity noteEntity)
+        //public NoteEntity NoteEntity { get; set; }
+        public string UserId { get; set; }
+        public NotesController(NoteDbContext context)
         {
             _context = context;
-            NoteEntity = noteEntity;
+            //NoteEntity = noteEntity;
         }
 
         [HttpGet("Get all note")]
         public async Task<ActionResult<IEnumerable<Notes>>> GetNotes()
         {
-            return await _context.Notes.ToListAsync();
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var test = _context.Notes.Where(n => n.UserId.ToString() == user).ToList();
+            return test;
         }
 
         [HttpGet("{id}")]
@@ -41,12 +44,22 @@ namespace NoteProject.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Notes>> PostNote(Notes note)
+        public async Task<ActionResult<Notes>> PostNote(CreateNote note)
         {
-            _context.Notes.Add(note);
+
+            UserId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var newNote = new Notes
+            {
+                Title = note.Title,
+                Content = note.Content,
+                Tags = note.Tags,
+                UserId = Guid.Parse(UserId)
+            };
+
+            _context.Notes.Add(newNote);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetNote), new { id = note.Id }, note);
+            return CreatedAtAction(nameof(GetNote), new { id = newNote.Id }, note);
         }
 
         [HttpPut("{id}")]

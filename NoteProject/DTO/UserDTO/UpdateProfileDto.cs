@@ -1,4 +1,4 @@
-﻿namespace NoteProject.DTO;
+﻿namespace NoteProject.DTO.UserDTO;
 
 public class UpdateProfileDto
 {
