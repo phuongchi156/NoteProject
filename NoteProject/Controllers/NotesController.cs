@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NoteProject.DTO.NoteDTO;
@@ -26,13 +27,14 @@ namespace NoteProject.Controllers
         public async Task<ActionResult<IEnumerable<Notes>>> GetNotes()
         {
             var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            var test = _context.Notes.Where(n => n.UserId.ToString() == user).ToList();
-            return test;
+            var restult = _context.Notes.Where(n => n.UserId.ToString() == user).ToList();
+            return restult;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Notes>> GetNote(int id)
         {
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
             var note = await _context.Notes.FindAsync(id);
 
             if (note == null)
@@ -62,15 +64,26 @@ namespace NoteProject.Controllers
             return CreatedAtAction(nameof(GetNote), new { id = newNote.Id }, note);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutNote(int id, Notes note)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PutNote(int id, CreateNote note)
         {
-            if (id != note.Id)
-            {
-                return BadRequest();
+            var existingNote = await _context.Notes.FindAsync(id);
+
+            if (existingNote == null) {
+                return NotFound();
             }
 
-            _context.Entry(note).State = EntityState.Modified;
+            if (note.Title != null)
+                existingNote.Title = note.Title;
+
+            if (note.Content != null)
+                existingNote.Content = note.Content;
+
+            if (note.Tags != null)
+                existingNote.Tags = note.Tags;
+
+            _context.Notes.Update(existingNote);
+
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -79,6 +92,7 @@ namespace NoteProject.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNote(int id)
         {
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
             var note = await _context.Notes.FindAsync(id);
             if (note == null)
             {
