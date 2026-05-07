@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NoteProject.DTO;
+using NoteProject.DTO.UserDTO;
 using NoteProject.Interfaces;
 using NoteProject.Models;
 

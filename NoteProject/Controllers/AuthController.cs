@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using NoteProject.DTO;
+using NoteProject.DTO.UserDTO;
 using NoteProject.Interfaces;
 using NoteProject.Models;
 using System;

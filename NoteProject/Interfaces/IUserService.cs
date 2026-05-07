@@ -1,4 +1,4 @@
-﻿using NoteProject.DTO;
+﻿using NoteProject.DTO.UserDTO;
 
 namespace NoteProject.Interfaces;
 
