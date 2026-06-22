@@ -10,4 +10,5 @@ public class Diaries
     public Guid UserId { get; set; }
     public bool IsPublic { get; set; }
     public User User { get; set; } = null!;
+    public List<DiaryImage> Images { get; set; } = new();
 }
