@@ -13,6 +13,9 @@ public class NoteDbContext : DbContext
     public DbSet<Tasks> Tasks { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<NoteTag> NoteTags { get; set; }
+    public DbSet<Diaries> Diaries { get; set; }
+    public DbSet<DiaryImage> DiaryImages { get; set; }
+
     public DbSet<ChecklistItems> ChecklistItems { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

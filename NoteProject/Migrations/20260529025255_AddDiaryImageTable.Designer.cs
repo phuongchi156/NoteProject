@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NoteProject;
 
@@ -11,9 +12,11 @@ using NoteProject;
 namespace NoteProject.Migrations
 {
     [DbContext(typeof(NoteDbContext))]
-    partial class NoteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260529025255_AddDiaryImageTable")]
+    partial class AddDiaryImageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,7 +88,13 @@ namespace NoteProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("DiaryId")
+                    b.Property<int>("DiaryId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("DiaryId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DiaryImageId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ImageUrl")
@@ -94,7 +103,9 @@ namespace NoteProject.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DiaryId");
+                    b.HasIndex("DiaryId1");
+
+                    b.HasIndex("DiaryImageId");
 
                     b.ToTable("DiaryImages");
                 });
@@ -264,10 +275,14 @@ namespace NoteProject.Migrations
             modelBuilder.Entity("NoteProject.Models.DiaryImage", b =>
                 {
                     b.HasOne("NoteProject.Models.Diaries", "Diary")
-                        .WithMany("Images")
-                        .HasForeignKey("DiaryId")
+                        .WithMany()
+                        .HasForeignKey("DiaryId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("NoteProject.Models.DiaryImage", null)
+                        .WithMany("Images")
+                        .HasForeignKey("DiaryImageId");
 
                     b.Navigation("Diary");
                 });
@@ -313,7 +328,7 @@ namespace NoteProject.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("NoteProject.Models.Diaries", b =>
+            modelBuilder.Entity("NoteProject.Models.DiaryImage", b =>
                 {
                     b.Navigation("Images");
                 });
