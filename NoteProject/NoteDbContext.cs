@@ -10,7 +10,7 @@ public class NoteDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
     public DbSet<Notes> Notes { get; set; }
-    public DbSet<Tasks> Tasks { get; set; }
+    public DbSet<Models.TodoTask> Tasks { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<NoteTag> NoteTags { get; set; }
     public DbSet<Diaries> Diaries { get; set; }
