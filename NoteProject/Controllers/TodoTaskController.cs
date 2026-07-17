@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NoteProject.DTO.TodoTaskDTO;
+using NoteProject.Interfaces;
 using NoteProject.Models;
 
 namespace NoteProject.Controllers
@@ -12,9 +13,11 @@ namespace NoteProject.Controllers
     public class TodoTaskController : ControllerBase
     {
         private readonly NoteDbContext _context;
-        public TodoTaskController(NoteDbContext context)
+        private readonly ITodoTaskService _taskService;
+        public TodoTaskController(NoteDbContext context, ITodoTaskService taskService)
         {
             _context = context;
+            _taskService = taskService;
         }
         //o Tạo công việc: Thêm công việc cần làm.
         //o Cập nhật công việc: Chỉnh sửa tên công việc, mô tả.
@@ -23,8 +26,6 @@ namespace NoteProject.Controllers
         //o Phân loại công việc: Phân công công việc theo nhóm hoặc ưu tiên.
 
         //public int Priority { get; set; } //1 = hight, 2 = medium, 3 = low
-
-        public User User { get; set; } = null!;
 
         [HttpPost("create")]
         /// <summary>
@@ -36,16 +37,7 @@ namespace NoteProject.Controllers
         public async Task<ActionResult<CreateTodoTask>> CreateTask([FromBody] CreateTodoTask task)
         {
             var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            var newTask = new TodoTask
-            {
-                Title = task.Title,
-                Description = task.Description,
-                DueDate = task.DueDate,
-                Priority = task.Priority,
-                UserId = Guid.Parse(user)
-            };
-            _context.Tasks.Add(newTask);
-            await _context.SaveChangesAsync();
+            await _taskService.CreateTaskAsync(task, Guid.Parse(user));
             return Ok();
         }
 
@@ -59,19 +51,8 @@ namespace NoteProject.Controllers
         /// </summary>
         public async Task<ActionResult<UpdateTodoTask>> UpdateTask(Guid id, [FromBody] UpdateTodoTask task)
         {
-            var existingTask = await _context.Tasks.FindAsync(id);
-            if (existingTask == null)
-            {
-                return NotFound();
-            }
-
-            existingTask.Title = task.Title;
-            existingTask.Description = task.Description;
-            existingTask.DueDate = task.DueDate;
-            existingTask.IsCompleted = task.IsCompleted;
-            existingTask.Priority = task.Priority;
-            existingTask.UpdatedAt = DateTime.Now;
-            await _context.SaveChangesAsync();
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            await _taskService.UpdateTodoTaskAsync(Guid.Parse(user), id, task);
             return Ok();
         }
 
@@ -92,13 +73,13 @@ namespace NoteProject.Controllers
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<TodoTask>> DeleteTask(Guid id)
         {
-            var existingTask = await _context.Tasks.FindAsync(id);
-            if (existingTask == null)
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = _taskService.DeleteTodoTaskAsync(Guid.Parse(user), id);
+
+            if (!result)
             {
                 return NotFound();
             }
-            _context.Tasks.Remove(existingTask);
-            await _context.SaveChangesAsync();
             return Ok();
         }
 
@@ -112,8 +93,8 @@ namespace NoteProject.Controllers
         public ActionResult<List<UpdateTodoTask>> GetTasks()
         {
             var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            var tasks = _context.Tasks.Where(t => t.UserId == Guid.Parse(user)).ToList();
-            return Ok(tasks);
+            var result = _taskService.GetAllTasksAsync(Guid.Parse(user));
+            return Ok(result);
         }
 
         [HttpGet("list/{id}")]
@@ -123,14 +104,11 @@ namespace NoteProject.Controllers
         /// 2 = Medium
         /// 3 = Low
         /// </summary>
-        public async Task<ActionResult<UpdateTodoTask>> GetTask(Guid id)
+        public async Task<ActionResult<UpdateTodoTask>> GetTaskById(Guid id)
         {
-            var existingTask = await _context.Tasks.FindAsync(id);
-            if (existingTask == null)
-            {
-                return NotFound();
-            }
-            return Ok(existingTask);
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            await _taskService.GetTodoTaskByIdAsync(Guid.Parse(userId), id);
+            return Ok();
         }
     }
 }

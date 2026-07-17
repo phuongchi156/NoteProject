@@ -120,6 +120,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 // Add JwtService
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ITodoTaskService, TodoTaskService>();
 
 // Add Ef core DbContext
 builder.Services.AddDbContext<NoteDbContext>(options =>
