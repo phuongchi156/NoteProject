@@ -12,7 +12,7 @@ namespace NoteProject.Interfaces
         Task<List<UpdateTodoTask>> GetAllTasksAsync(Guid userId);
         Task UpdateTodoTaskAsync(Guid userId, Guid taskId, UpdateTodoTask updateTodoTaskDto);
         bool DeleteTodoTaskAsync(Guid userId, Guid taskId);
-        Task SearchTaskByStatusAsync(bool isCompleted, Guid userId);
-        Task SearchTaskByPriorityAsync(int priority, Guid userId);
+        Task<List<UpdateTodoTask>> SearchTaskByStatusAsync(bool isCompleted, Guid userId);
+        Task<List<UpdateTodoTask>> SearchTaskByPriorityAsync(int priority, Guid userId);
     }
 }
