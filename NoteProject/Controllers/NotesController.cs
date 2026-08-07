@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NoteProject.DTO.NoteDTO;
 using NoteProject.Entities;
 using NoteProject.Models;
+using NoteProject.Services;
 using System;
 
 namespace NoteProject.Controllers
@@ -17,10 +18,11 @@ namespace NoteProject.Controllers
         private readonly NoteDbContext _context;
         //public NoteEntity NoteEntity { get; set; }
         public string UserId { get; set; }
-        public NotesController(NoteDbContext context)
+        private readonly NoteService _noteService;
+        public NotesController(NoteDbContext context, NoteService noteService)
         {
             _context = context;
-            //NoteEntity = noteEntity;
+            _noteService = noteService;
         }
 
         [HttpGet("Get all note")]
@@ -103,6 +105,24 @@ namespace NoteProject.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("search")]
+        public async Task<List<GetNoteDTO>> SearchNoteAsync(string title)
+        {
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var userId = Guid.Parse(UserId);
+            var result = await _noteService.SearchNoteAsync(title, userId);
+            return result;
+        }
+
+        [HttpGet("searchByTime")]
+        public async Task<List<GetNoteDTO>> SearchNoteByTime(DateTime startTime, DateTime endTime)
+        {
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var userId = Guid.Parse(UserId);
+            var result = await _noteService.SearchNoteByTime(startTime, endTime, userId);
+            return result;
         }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NoteProject.DTO.DiaryDTO;
 using NoteProject.Models;
+using NoteProject.Services;
 
 namespace NoteProject.Controllers
 {
@@ -11,9 +12,11 @@ namespace NoteProject.Controllers
     public class DiariesController : ControllerBase
     {
         private readonly NoteDbContext _context;
-        public DiariesController(NoteDbContext context)
+        private readonly DiaryService _diaryService;
+        public DiariesController(NoteDbContext context, DiaryService diaryService)
         {
             _context = context;
+            _diaryService = diaryService;
         }
 
         [HttpGet("Get all diaries")]
@@ -113,6 +116,22 @@ namespace NoteProject.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(diary);
+        }
+
+        [HttpGet("search")]
+        public async Task<List<CreateDiary>> SearchDiary(string title)
+        {
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = await _diaryService.SearchDiaryByTitleAsync(title, Guid.Parse(user));
+            return result;
+        }
+
+        [HttpGet("searchByTime")]
+        public async Task<List<CreateDiary>> SearchDiaryByTime(DateTime startTime, DateTime endTime)
+        {
+            var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = await _diaryService.SearchDiaryByTime(startTime, endTime, Guid.Parse(user));
+            return result;
         }
     }
     

@@ -95,5 +95,43 @@ namespace NoteProject.Services
             existingTask.UpdatedAt = DateTime.Now;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<UpdateTodoTask>> SearchTodoTasksAsync(Guid userId, string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new Exception("Title is empty.");
+            }
+            var tasks = await _context.Tasks
+                .Where(a => a.UserId == userId && a.Title.Contains(title))
+                .ToListAsync();
+            return tasks.Select(a => new UpdateTodoTask
+            {
+                Title = a.Title,
+                Description = a.Description,
+                DueDate = a.DueDate,
+                IsCompleted = a.IsCompleted,
+                Priority = a.Priority
+            }).ToList();
+        }
+
+        public async Task<List<UpdateTodoTask>> SearchTodoTasksByTimeAsync(Guid userId, DateTime startTime, DateTime endTime)
+        {
+            if (startTime > endTime)
+            {
+                throw new Exception("Start time must be less than or equal to end time.");
+            }
+            var tasks = await _context.Tasks
+                .Where(a => a.UserId == userId && a.DueDate >= startTime && a.DueDate <= endTime)
+                .ToListAsync();
+            return tasks.Select(a => new UpdateTodoTask
+            {
+                Title = a.Title,
+                Description = a.Description,
+                DueDate = a.DueDate,
+                IsCompleted = a.IsCompleted,
+                Priority = a.Priority
+            }).ToList();
+        }
     }
 }
