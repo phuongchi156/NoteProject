@@ -110,5 +110,21 @@ namespace NoteProject.Controllers
             await _taskService.GetTodoTaskByIdAsync(Guid.Parse(userId), id);
             return Ok();
         }
+
+        [HttpGet("searchByPriority")]
+        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTask(int prioty)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = await _taskService.SearchTaskByPriorityAsync(prioty, Guid.Parse(userId));
+            return Ok(result);
+        }
+
+        [HttpGet("searchByStatus")]
+        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByStatus(bool isCompleted)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = await _taskService.SearchTaskByStatusAsync(isCompleted, Guid.Parse(userId));
+            return Ok(result);
+        }
     }
 }
