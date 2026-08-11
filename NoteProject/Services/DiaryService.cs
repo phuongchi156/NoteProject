@@ -11,14 +11,31 @@ namespace NoteProject.Services
             _context = context;
         }
 
-        public async Task<List<CreateDiary>> SearchDiaryByTime(DateTime startTime, DateTime endTime, Guid userId)
+        public async Task<List<CreateDiary>> SearchDiaryByTime(DateTime? startDate, DateTime? endDate, Guid userId)
         {
-            if (startTime > endTime)
+            if (startDate > endDate)
             {
                 throw new Exception("Start time must be less than or equal to end time.");
             }
+
+            if (!startDate.HasValue && !endDate.HasValue)
+            {
+                throw new ArgumentException(
+                    "At least one date must be provided.");
+            }
+
+            if (startDate.HasValue && !endDate.HasValue)
+            {
+                endDate = DateTime.Today.AddDays(1).AddTicks(-1);
+            }
+
+            if (!startDate.HasValue && endDate.HasValue)
+            {
+                startDate = DateTime.MinValue;
+            }
+
             var diaries = await _context.Diaries
-                .Where(d => d.UserId == userId && d.CreatedAt >= startTime && d.CreatedAt <= endTime)
+                .Where(d => d.UserId == userId && d.CreatedAt >= startDate && d.CreatedAt <= endDate)
                 .ToListAsync();
 
 

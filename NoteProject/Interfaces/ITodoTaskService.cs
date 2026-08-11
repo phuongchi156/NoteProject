@@ -15,6 +15,6 @@ namespace NoteProject.Interfaces
         Task<List<UpdateTodoTask>> SearchTaskByStatusAsync(bool isCompleted, Guid userId);
         Task<List<UpdateTodoTask>> SearchTaskByPriorityAsync(int priority, Guid userId);
         Task<List<UpdateTodoTask>> SearchTodoTasksAsync(Guid userId, string title);
-        Task<List<UpdateTodoTask>> SearchTodoTasksByTimeAsync(Guid userId, DateTime startTime, DateTime endTime);
+        Task<List<UpdateTodoTask>> SearchTodoTasksByTimeAsync(Guid userId, DateTime? startTime, DateTime? endTime);
     }
 }

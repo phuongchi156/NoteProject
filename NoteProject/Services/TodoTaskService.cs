@@ -116,15 +116,36 @@ namespace NoteProject.Services
             }).ToList();
         }
 
-        public async Task<List<UpdateTodoTask>> SearchTodoTasksByTimeAsync(Guid userId, DateTime startTime, DateTime endTime)
+        public async Task<List<UpdateTodoTask>> SearchTodoTasksByTimeAsync(Guid userId, DateTime? startDate, DateTime? endDate)
         {
-            if (startTime > endTime)
+            if (startDate > endDate)
             {
                 throw new Exception("Start time must be less than or equal to end time.");
             }
+
+            if (!startDate.HasValue && !endDate.HasValue)
+            {
+                throw new ArgumentException(
+                    "At least one date must be provided.");
+            }
+
+            if (startDate.HasValue && !endDate.HasValue)
+            {
+                endDate = DateTime.Today.AddDays(1).AddTicks(-1);
+            }
+
+            if (!startDate.HasValue && endDate.HasValue)
+            {
+                startDate = DateTime.MinValue;
+            }
+
             var tasks = await _context.Tasks
-                .Where(a => a.UserId == userId && a.DueDate >= startTime && a.DueDate <= endTime)
+                .Where(t =>
+                    t.UserId == userId &&
+                    t.DueDate >= startDate &&
+                    t.DueDate <= endDate)
                 .ToListAsync();
+
             return tasks.Select(a => new UpdateTodoTask
             {
                 Title = a.Title,
