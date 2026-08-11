@@ -127,7 +127,7 @@ namespace NoteProject.Controllers
         }
 
         [HttpGet("searchByTime")]
-        public async Task<List<CreateDiary>> SearchDiaryByTime(DateTime startTime, DateTime endTime)
+        public async Task<List<CreateDiary>> SearchDiaryByTime(DateTime? startTime, DateTime? endTime)
         {
             var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
             var result = await _diaryService.SearchDiaryByTime(startTime, endTime, Guid.Parse(user));

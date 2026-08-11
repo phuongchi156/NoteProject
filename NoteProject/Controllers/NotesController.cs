@@ -117,7 +117,7 @@ namespace NoteProject.Controllers
         }
 
         [HttpGet("searchByTime")]
-        public async Task<List<GetNoteDTO>> SearchNoteByTime(DateTime startTime, DateTime endTime)
+        public async Task<List<GetNoteDTO>> SearchNoteByTime(DateTime? startTime, DateTime? endTime)
         {
             var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
             var userId = Guid.Parse(UserId);

@@ -128,7 +128,7 @@ namespace NoteProject.Controllers
         }
 
         [HttpDelete("searchByTime")]
-        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByTime(DateTime startTime, DateTime endTime)
+        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByTime(DateTime? startTime, DateTime? endTime)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
             var result = await _taskService.SearchTodoTasksByTimeAsync(Guid.Parse(userId), startTime, endTime);

@@ -34,16 +34,33 @@ namespace NoteProject.Services
             return result;
         }
 
-        public async Task<List<GetNoteDTO>> SearchNoteByTime(DateTime startTime, DateTime endTime, Guid userId)
+        public async Task<List<GetNoteDTO>> SearchNoteByTime(DateTime? startDate, DateTime? endDate, Guid userId)
         {
-            if (startTime > endTime)
+            if (startDate > endDate)
             {
                 throw new Exception("Start time must be less than or equal to end time.");
             }
 
+            if (!startDate.HasValue && !endDate.HasValue)
+            {
+                throw new ArgumentException(
+                    "At least one date must be provided.");
+            }
+
+            if (startDate.HasValue && !endDate.HasValue)
+            {
+                endDate = DateTime.Today.AddDays(1).AddTicks(-1);
+            }
+
+            if (!startDate.HasValue && endDate.HasValue)
+            {
+                startDate = DateTime.MinValue;
+            }
+
             var notes = await _context.Notes
-                .Where(n => n.UserId == userId && n.CreatedAt >= startTime && n.CreatedAt <= endTime)
+                .Where(n => n.UserId == userId && n.CreatedAt >= startDate && n.CreatedAt <= endDate)
                 .ToListAsync();
+
             return notes.Select(n => new GetNoteDTO
             {
                 Title = n.Title,
