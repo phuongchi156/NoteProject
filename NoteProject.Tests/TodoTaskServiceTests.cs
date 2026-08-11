@@ -16,9 +16,14 @@ namespace NoteProject.Tests
         //GetTaskById_Should_Return_Task----------------
         //GetTaskById_Should_NotFound_Other_User_Task-----------------
         //GetTaskById_Should_Throw_When_Task_Not_Found-----------------
-        //SearchTask_Should_Return_Matching_Task
-        //FilterTask_Should_Return_HighPriority_Task
-        //CompleteTask_Should_Set_IsCompleted_True
+        //SearchTask_Should_Return_Matching_Task--------------------
+        //FilterTask_Should_Return_HighPriority_Task---------------------
+        //FilterTask_Should_Return_LowPriority_Task---------------------
+        //SearchTask_Should_Return_Completed_Task---------------------
+        //SearchTask_Should_Return_Incompleted_Task---------------------
+        //FilterTask_Should_Return_By_Time---------------------
+        //SearchTask_Only_StartTime_Should_Return_By_Time---------------------
+        //SearchTask_Only_EndTime_Should_Return_By_Time---------------------
 
         [Fact]
         public async Task CreateTask_Should_Add_New_Task()
@@ -286,5 +291,327 @@ namespace NoteProject.Tests
             Assert.Equal("Task not found.", ex.Message);
         }
 
+        [Fact]
+        public async Task searchTask_Should_Return_Matching_Task()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Learn Unit Test",
+                Description = "Practice xUnit",
+                Priority = 1,
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Learn Integration Test",
+                Description = "Practice xUnit and Moq",
+                Priority = 2,
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTodoTasksAsync(userId, "Integration");
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Learn Integration Test", tasks.First().Title);
+        }
+
+        [Fact]
+        public async Task FilterTask_Should_Return_HighPriority_Task()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTaskByPriorityAsync(1, userId);
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 1", tasks.First().Title);
+        }
+        [Fact]
+        public async Task FilterTask_Should_Return_MediumPriority_Task()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTaskByPriorityAsync(2, userId);
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 2", tasks.First().Title);
+        }
+
+        [Fact]
+        public async Task FilterTask_Should_Return_LowPriority_Task()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 3,
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTaskByPriorityAsync(3, userId);
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 1", tasks.First().Title);
+        }
+
+        [Fact]
+        public async Task SearchTask_Should_Return_Completed_Task()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                IsCompleted = true,
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                IsCompleted = false,
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTaskByStatusAsync(true, userId);
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 1", tasks.First().Title);
+        }
+        [Fact]
+        public async Task SearchTask_Should_Return_Incompleted_Task()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                IsCompleted = true,
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                IsCompleted = false,
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTaskByStatusAsync(false, userId);
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 2", tasks.First().Title);
+        }
+
+        [Fact]
+        public async Task FilterTask_Should_Return_By_Time()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                DueDate = DateTime.Now.AddDays(1),
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                DueDate = DateTime.Now.AddDays(5),
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTodoTasksByTimeAsync(userId, DateTime.Now, DateTime.Now.AddDays(3));
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 1", tasks.First().Title);
+
+        }
+        [Fact]
+        public async Task SearchTask_Only_StartTime_Should_Return_By_Time()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                DueDate = DateTime.Now.AddDays(1),
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                DueDate = DateTime.Now.AddDays(5),
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTodoTasksByTimeAsync(userId, DateTime.Now.AddDays(3), null);
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 2", tasks.First().Title);
+        }
+
+        [Fact]
+        public async Task SearchTask_Only_EndTime_Should_Return_By_Time()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<NoteDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var context = new NoteDbContext(options);
+            var service = new TodoTaskService(context);
+            var userId = Guid.NewGuid();
+            var task1 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 1",
+                Description = "Description 1",
+                Priority = 1,
+                DueDate = DateTime.Now.AddDays(1),
+                UserId = userId
+            };
+            var task2 = new Models.TodoTask
+            {
+                Id = Guid.NewGuid(),
+                Title = "Task 2",
+                Description = "Description 2",
+                Priority = 2,
+                DueDate = DateTime.Now.AddDays(5),
+                UserId = userId
+            };
+            context.Tasks.AddRange(task1, task2);
+            await context.SaveChangesAsync();
+            // Act
+            var tasks = await service.SearchTodoTasksByTimeAsync(userId, null, DateTime.Now.AddDays(3));
+            // Assert
+            Assert.Single(tasks);
+            Assert.Equal("Task 1", tasks.First().Title);
+        }
     }
 }
