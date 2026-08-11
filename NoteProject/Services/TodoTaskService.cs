@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Writers;
 using NoteProject.DTO.TodoTaskDTO;
 using NoteProject.Interfaces;
 using NoteProject.Models;
@@ -123,6 +124,36 @@ namespace NoteProject.Services
             }
             var tasks = await _context.Tasks
                 .Where(a => a.UserId == userId && a.DueDate >= startTime && a.DueDate <= endTime)
+                .ToListAsync();
+            return tasks.Select(a => new UpdateTodoTask
+            {
+                Title = a.Title,
+                Description = a.Description,
+                DueDate = a.DueDate,
+                IsCompleted = a.IsCompleted,
+                Priority = a.Priority
+            }).ToList();
+        }
+
+        public async Task<List<UpdateTodoTask>> SearchTaskByStatusAsync(bool isCompleted, Guid userId)
+        {
+            var tasks = await _context.Tasks
+                .Where(a => a.UserId == userId && a.IsCompleted == isCompleted)
+                .ToListAsync();
+            return tasks.Select(a => new UpdateTodoTask
+            {
+                Title = a.Title,
+                Description = a.Description,
+                DueDate = a.DueDate,
+                IsCompleted = a.IsCompleted,
+                Priority = a.Priority
+            }).ToList();
+        }
+
+        public async Task<List<UpdateTodoTask>> SearchTaskByPriorityAsync(int priority, Guid userId)
+        {
+            var tasks = await _context.Tasks
+                .Where(a => a.UserId == userId && a.Priority == priority)
                 .ToListAsync();
             return tasks.Select(a => new UpdateTodoTask
             {

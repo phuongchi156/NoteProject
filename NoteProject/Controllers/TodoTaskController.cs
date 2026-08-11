@@ -126,5 +126,21 @@ namespace NoteProject.Controllers
             var result = await _taskService.SearchTaskByStatusAsync(isCompleted, Guid.Parse(userId));
             return Ok(result);
         }
+
+        [HttpDelete("searchByTime")]
+        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByTime(DateTime startTime, DateTime endTime)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = await _taskService.SearchTodoTasksByTimeAsync(Guid.Parse(userId), startTime, endTime);
+            return Ok(result);
+        }
+
+        [HttpGet("searchByTitle")]
+        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByTitle(string title)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var result = await _taskService.SearchTodoTasksAsync(Guid.Parse(userId), title);
+            return Ok(result);
+        }
     }
 }
