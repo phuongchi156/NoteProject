@@ -127,7 +127,7 @@ namespace NoteProject.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("searchByTime")]
+        [HttpGet("searchByTime")]
         public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByTime(DateTime? startTime, DateTime? endTime)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
@@ -136,7 +136,7 @@ namespace NoteProject.Controllers
         }
 
         [HttpGet("searchByTitle")]
-        public async Task<ActionResult<List<UpdateTodoTask>>> SearchTaskByTitle(string title)
+        public async Task<ActionResult<List<UpdateTodoTask>>> SehttprchTaskByTitle(string title)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
             var result = await _taskService.SearchTodoTasksAsync(Guid.Parse(userId), title);
