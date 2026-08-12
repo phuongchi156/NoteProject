@@ -556,7 +556,7 @@ namespace NoteProject.Tests
                 Title = "Task 1",
                 Description = "Description 1",
                 Priority = 1,
-                DueDate = DateTime.Now.AddDays(1),
+                DueDate = DateTime.Now.AddDays(-5),
                 UserId = userId
             };
             var task2 = new Models.TodoTask
@@ -565,13 +565,13 @@ namespace NoteProject.Tests
                 Title = "Task 2",
                 Description = "Description 2",
                 Priority = 2,
-                DueDate = DateTime.Now.AddDays(5),
+                DueDate = DateTime.Now,
                 UserId = userId
             };
             context.Tasks.AddRange(task1, task2);
             await context.SaveChangesAsync();
             // Act
-            var tasks = await service.SearchTodoTasksByTimeAsync(userId, DateTime.Now.AddDays(3), null);
+            var tasks = await service.SearchTodoTasksByTimeAsync(userId, DateTime.Now.AddDays(-3), null);
             // Assert
             Assert.Single(tasks);
             Assert.Equal("Task 2", tasks.First().Title);
