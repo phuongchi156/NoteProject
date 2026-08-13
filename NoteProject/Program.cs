@@ -7,12 +7,25 @@ using NoteProject.Services;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Serilog;
+using NoteProject.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add JWT configuration
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var key = jwtSection.GetValue<string>("Key")!;
+
+// Add Serilog configuration
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        "logs/log-.txt",
+        rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Configure JWT authentication
 builder.Services.AddAuthentication(options =>
@@ -129,6 +142,8 @@ builder.Services.AddDbContext<NoteDbContext>(options =>
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -137,6 +152,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add ExceptionMiddleware
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthentication();
 

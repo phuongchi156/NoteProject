@@ -10,10 +10,12 @@ namespace NoteProject.Services
     public class TodoTaskService : ITodoTaskService
     {
         private readonly NoteDbContext _context;
+        private readonly ILogger<TodoTaskService> _logger;
 
-        public TodoTaskService(NoteDbContext context)
+        public TodoTaskService(NoteDbContext context, ILogger<TodoTaskService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task CreateTaskAsync(CreateTodoTask dto, Guid userId)
@@ -46,9 +48,9 @@ namespace NoteProject.Services
             return true;
         }
 
-        public Task<List<UpdateTodoTask>> GetAllTasksAsync(Guid userId)
+        public async Task<List<UpdateTodoTask>> GetAllTasksAsync(Guid userId)
         {
-            var tasks = _context.Tasks
+            var tasks = await _context.Tasks
                 .Where(a => a.UserId == userId)
                 .Select(a => new UpdateTodoTask
                 {
@@ -83,8 +85,11 @@ namespace NoteProject.Services
         {
             var existingTask = await _context.Tasks.FirstOrDefaultAsync(a=> a.Id == taskId && a.UserId == userId);
 
+            _logger.LogInformation("User {UserId} is updating task {TaskId}",userId,taskId);
+
             if (existingTask == null)
             {
+                _logger.LogWarning("Task {TaskId} was not found for user {UserId}", taskId, userId);
                 throw new Exception("Task not found.");
             }
 
@@ -95,6 +100,8 @@ namespace NoteProject.Services
             existingTask.Priority = updateTodoTaskDto.Priority;
             existingTask.UpdatedAt = DateTime.Now;
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Task {TaskId} was updated successfully by user {UserId}", taskId, userId);
         }
 
         public async Task<List<UpdateTodoTask>> SearchTodoTasksAsync(Guid userId, string title)
