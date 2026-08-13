@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NoteProject.DTO.TodoTaskDTO;
 using NoteProject.Interfaces;
 using NoteProject.Models;
+using System.Threading.Tasks;
 
 namespace NoteProject.Controllers
 {
@@ -90,10 +91,10 @@ namespace NoteProject.Controllers
         /// 2 = Medium
         /// 3 = Low
         /// </summary>
-        public ActionResult<List<UpdateTodoTask>> GetTasks()
+        public async Task<ActionResult<List<UpdateTodoTask>>> GetTasks()
         {
             var user = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            var result = _taskService.GetAllTasksAsync(Guid.Parse(user));
+            var result = await _taskService.GetAllTasksAsync(Guid.Parse(user));
             return Ok(result);
         }
 

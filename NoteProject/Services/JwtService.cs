@@ -9,7 +9,12 @@ namespace NoteProject.Services;
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _configuration;
-    public JwtService(IConfiguration configuration) => _configuration = configuration;
+    private readonly ILogger<TodoTaskService> _logger;
+    public JwtService(IConfiguration configuration, ILogger<TodoTaskService> logger)
+    {
+        _configuration = configuration;
+        _logger = logger;
+    }
 
     public string GenerateToken(Guid userId, string userName, string email)
     {
@@ -30,6 +35,7 @@ public class JwtService : IJwtService
         var creds = new SigningCredentials(symmetricKey, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(issuer, audience, claims, expires: DateTime.UtcNow.AddMinutes(expireMinutes), signingCredentials: creds);
+        _logger.LogInformation("Generated JWT token for user {UserId} with claims: {Claims}", userId, claims);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
